@@ -14,6 +14,7 @@ import {
   Switch,
   Text,
   Textarea,
+  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Tesseract from "tesseract.js";
@@ -34,32 +35,32 @@ const ProcessImage = () => {
   };
 
   const handleImageUpload = async (event: any) => {
-    if (lang.length !== 0) {
-      const inputFile: File = event.target.files[0];
-      setImageFile(inputFile);
-    } else {
-      alert("Please Select At Least 1 Language Before Process");
-    }
+    const inputFile: File = event.target.files[0];
+    setImageFile(inputFile);
   };
 
   const tesseractExtract = async () => {
-    setIsLoading(true);
-    if (imageFile) {
-      setSelectedImage(URL.createObjectURL(imageFile));
-      const {
-        data: { text },
-      } = await Tesseract.recognize(imageFile, lang as unknown as string);
-      let modify = "";
-      if (lang.includes("tha")) {
-        modify = text.split(" ").join("");
+    if (lang.length !== 0) {
+      setIsLoading(true);
+      if (imageFile) {
+        setSelectedImage(URL.createObjectURL(imageFile));
+        const {
+          data: { text },
+        } = await Tesseract.recognize(imageFile, lang.join("+"));
+        let modify = "";
+        if (lang.includes("tha")) {
+          modify = text.split(" ").join("");
+        } else {
+          modify = text;
+        }
+        setText(modify);
       } else {
-        modify = text;
+        setText("No image Select");
       }
-      setText(modify);
+      setIsLoading(false);
     } else {
-      setText("No image Select");
+      alert("Please select at least 1 language!");
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -121,7 +122,12 @@ const ProcessImage = () => {
   };
 
   return (
-    <Box>
+    <Box
+      onPaste={(e) => {
+        const item = (e.clipboardData || window.Clipboard).files[0];
+        setImageFile(item);
+      }}
+    >
       <Box w="fit-content" opacity={isLoading ? "0.3" : "1"} m="auto">
         <label htmlFor="imageInput">
           <Text
@@ -181,6 +187,20 @@ const ProcessImage = () => {
               }}
             />
           </HStack>
+          <HStack>
+            <Text w="2rem">JPN</Text>
+            <Switch
+              defaultChecked={lang.includes("jpn")}
+              onChange={(e) => {
+                const en = e.target.checked;
+                if (en) {
+                  setLang((prev) => [...prev, "jpn"]);
+                } else {
+                  setLang((prev) => prev.filter((i) => i !== "jpn"));
+                }
+              }}
+            />
+          </HStack>
         </HStack>
       </Box>
       <Box
@@ -192,23 +212,39 @@ const ProcessImage = () => {
         <HStack align={"flex-start"}>
           <Box w="50%">
             <Text fontWeight={"bold"}>Your Image :</Text>
-            {selectedImage && (
-              <Box
-                p="1rem"
-                w="100%"
-                h="100%"
-                display="flex"
-                justifyContent={"center"}
-                alignItems={"center"}
-              >
+            <Box
+              p="1rem"
+              w="100%"
+              h="100%"
+              // display="flex"
+              // alignItems={"center"}
+            >
+              <VStack>
                 <Image
                   src={selectedImage}
                   maxW="50vw"
                   maxH="40dvh"
                   draggable={false}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const image = e.dataTransfer.files[0];
+                    if (image.type.startsWith("image/")) {
+                      setImageFile(image);
+                    } else {
+                      alert("Allow Only Image File!");
+                    }
+                  }}
+                  fallbackSrc="/img/empty.jpg"
                 />
-              </Box>
-            )}
+                <Text color="GrayText">
+                  You can <Badge>drag</Badge> your image file and{" "}
+                  <Badge>drop</Badge> here or <Kbd>ctrl</Kbd> + <Kbd>v</Kbd>
+                </Text>
+              </VStack>
+            </Box>
           </Box>
           <Box w="50%">
             <Text fontWeight={"bold"}>Extracted Text :</Text>
@@ -236,7 +272,7 @@ const ProcessImage = () => {
           </Box>
         </HStack>
         <Box w="fit-content" m="auto">
-          <Button onClick={tesseractExtract}>Reload Extract</Button>
+          <Button onClick={tesseractExtract}>Reload</Button>
         </Box>
       </Box>
       <Box
