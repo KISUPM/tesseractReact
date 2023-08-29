@@ -308,7 +308,7 @@ const ProcessImage = () => {
             </Box>
           </Box>
         </Box>
-        <Box w="fit-content" m="auto">
+        <Box w="fit-content" m="auto" mt={["0", "1rem"]}>
           <Button onClick={tesseractExtract}>Reload</Button>
         </Box>
       </Box>
