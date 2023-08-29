@@ -133,6 +133,7 @@ const ProcessImage = () => {
         const item = (e.clipboardData || window.Clipboard).files[0];
         setImageFile(item);
       }}
+      tabIndex={0}
     >
       {/* Select Image From Input */}
       <Box w="fit-content" opacity={isLoading ? "0.3" : "1"} m="auto">
@@ -221,13 +222,7 @@ const ProcessImage = () => {
         <HStack align={"flex-start"}>
           <Box w="50%">
             <Text fontWeight={"bold"}>Your Image :</Text>
-            <Box
-              p="1rem"
-              w="100%"
-              h="100%"
-              // display="flex"
-              // alignItems={"center"}
-            >
+            <Box p="1rem" w="100%" h="100%">
               <VStack>
                 <Image
                   src={selectedImage}
