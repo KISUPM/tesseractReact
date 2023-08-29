@@ -219,8 +219,8 @@ const ProcessImage = () => {
         borderRadius={"5px"}
         my="0.25rem"
       >
-        <HStack align={"flex-start"}>
-          <Box w="50%">
+        <Box display="flex" flexDir={["column", "row"]}>
+          <Box w={["100%", "50%"]}>
             <Text fontWeight={"bold"}>Your Image :</Text>
             <Box p="1rem" w="100%" h="100%">
               <VStack>
@@ -250,7 +250,7 @@ const ProcessImage = () => {
               </VStack>
             </Box>
           </Box>
-          <Box w="50%">
+          <Box w={["100%", "50%"]}>
             <Text fontWeight={"bold"}>Extracted Text :</Text>
             <Box
               p="1rem"
@@ -284,7 +284,7 @@ const ProcessImage = () => {
                         toast({
                           title: "copy success",
                           status: "success",
-                          position: "bottom-right",
+                          position: "top-right",
                           duration: 1500,
                           isClosable: true,
                         });
@@ -307,7 +307,7 @@ const ProcessImage = () => {
               )}
             </Box>
           </Box>
-        </HStack>
+        </Box>
         <Box w="fit-content" m="auto">
           <Button onClick={tesseractExtract}>Reload</Button>
         </Box>
@@ -320,7 +320,7 @@ const ProcessImage = () => {
         my="0.25rem"
       >
         <Text>Keywords</Text>
-        <InputGroup w="20%">
+        <InputGroup w={["100%", "20%"]}>
           <Input
             id="keywordInput"
             placeholder="add keyword"
