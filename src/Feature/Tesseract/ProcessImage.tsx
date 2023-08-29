@@ -15,10 +15,12 @@ import {
   Text,
   Textarea,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import Tesseract from "tesseract.js";
 import { AiOutlineDelete, AiOutlineEnter } from "react-icons/ai";
+import { BiCopy } from "react-icons/bi";
 
 const ProcessImage = () => {
   const [textExtract, setText] = useState("No Image Select");
@@ -28,6 +30,8 @@ const ProcessImage = () => {
   const [lang, setLang] = useState<string[]>(["eng", "tha"]);
   const [keywords, setKeywords] = useState<string[]>(["ชื่อเส้นทาง"]);
   const [imageFile, setImageFile] = useState<any>();
+  const [textChange, setTextChange] = useState("");
+  const toast = useToast();
 
   const sleep = (s: number) => {
     textShow;
@@ -48,14 +52,16 @@ const ProcessImage = () => {
           data: { text },
         } = await Tesseract.recognize(imageFile, lang.join("+"));
         let modify = "";
-        if (lang.includes("tha")) {
+        if (lang.includes("tha") || lang.includes("jpn")) {
           modify = text.split(" ").join("");
         } else {
           modify = text;
         }
         setText(modify);
+        setTextChange(modify);
       } else {
         setText("No image Select");
+        setTextChange("");
       }
       setIsLoading(false);
     } else {
@@ -128,6 +134,7 @@ const ProcessImage = () => {
         setImageFile(item);
       }}
     >
+      {/* Select Image From Input */}
       <Box w="fit-content" opacity={isLoading ? "0.3" : "1"} m="auto">
         <label htmlFor="imageInput">
           <Text
@@ -151,6 +158,7 @@ const ProcessImage = () => {
           multiple
         />
       </Box>
+      {/* Set Language */}
       <Box
         border="1px solid #fff"
         p="0.25rem"
@@ -203,6 +211,7 @@ const ProcessImage = () => {
           </HStack>
         </HStack>
       </Box>
+      {/* Display */}
       <Box
         border="1px solid #fff"
         p="0.25rem"
@@ -255,18 +264,51 @@ const ProcessImage = () => {
               display="flex"
               justifyContent={"center"}
               alignItems={"center"}
+              position="relative"
             >
               {isLoading ? (
                 <Spinner />
               ) : textExtract === "No Image Select" ? (
                 <Text>{textExtract}</Text>
               ) : (
-                <Textarea
-                  defaultValue={textExtract}
-                  w="100%"
-                  h="100%"
-                  rows={10}
-                />
+                <>
+                  <Kbd
+                    fontSize={"1.5rem"}
+                    p="0.25rem"
+                    color="#000"
+                    position="absolute"
+                    top="-1.5rem"
+                    right="1rem"
+                    borderRadius={"10px"}
+                    borderBottom="5px solid #aaa"
+                    _active={{ borderBottom: "0px", top: "-1.25rem" }}
+                    cursor={"pointer"}
+                    onClick={() => {
+                      if (textChange !== "") {
+                        navigator.clipboard.writeText(textChange);
+                        toast({
+                          title: "copy success",
+                          status: "success",
+                          position: "bottom-right",
+                          duration: 1500,
+                          isClosable: true,
+                        });
+                      }
+                    }}
+                  >
+                    <BiCopy />
+                  </Kbd>
+                  <Textarea
+                    defaultValue={textExtract}
+                    w="100%"
+                    h="100%"
+                    rows={10}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setTextChange(v);
+                    }}
+                  />
+                </>
               )}
             </Box>
           </Box>
@@ -275,6 +317,7 @@ const ProcessImage = () => {
           <Button onClick={tesseractExtract}>Reload</Button>
         </Box>
       </Box>
+      {/* Keywords */}
       <Box
         border="1px solid #fff"
         p="0.25rem"
